@@ -1,5 +1,5 @@
 import { TbMicrophoneOff } from "react-icons/tb";
-import Modal from "./Modal";
+import Modal from "../../../components/Modal";
 
 function MicrophoneMissingModal({ show }) {
     if (!show) return null;

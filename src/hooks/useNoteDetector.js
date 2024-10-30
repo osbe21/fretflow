@@ -1,7 +1,7 @@
 import { useEffect, useState, useRef } from "react";
 import * as Pitchfinder from "pitchfinder";
 
-export default function useNoteDetector(hasMicrophonePermission = true) {
+export default function useNoteDetector(microphoneState) {
     const midiNoteToChar = [
         "C",
         "C#",
@@ -73,14 +73,14 @@ export default function useNoteDetector(hasMicrophonePermission = true) {
                 return null;
             }
 
-            setNoteDetector(getNote);
+            setNoteDetector(() => getNote);
         }
 
-        // if (hasMicrophonePermission) {
-        setupNoteDetector();
-        // } else {
-        // setNoteDetector(null);
-        // }
+        if (microphoneState == "prompt" || microphoneState == "granted") {
+            setupNoteDetector();
+        } else {
+            setNoteDetector(null);
+        }
 
         return () => {
             if (mediaStreamRef.current) {
@@ -95,7 +95,7 @@ export default function useNoteDetector(hasMicrophonePermission = true) {
 
             console.log("Cleaned up note detector");
         };
-    }, [hasMicrophonePermission]);
+    }, [microphoneState]);
 
     return noteDetector;
 }

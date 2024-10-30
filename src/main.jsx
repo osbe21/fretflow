@@ -5,7 +5,16 @@ import Root from "./pages/Root";
 import IndexPage from "./pages/Index/IndexPage";
 import PracticePage from "./pages/Practice/PracticePage";
 import PracticeMenuPage from "./pages/PracticeMenu/PracticeMenuPage";
-import "./index.css";
+import "./assets/index.css";
+
+// Step 1:
+//     Lær alle naturlige noter på lav-E streng
+//
+// Step 2:
+//     Lær alle naturlige noter på A streng
+//
+// Step 3:
+//     TBC
 
 const practiceSteps = {
     "step-1": Array(3)
@@ -15,6 +24,7 @@ const practiceSteps = {
             note,
             string: 5,
         })),
+    "step-2": [{ note: "A", string: 0 }],
 };
 
 const router = createBrowserRouter([
@@ -41,7 +51,9 @@ const router = createBrowserRouter([
                     },
                     {
                         path: "step-2",
-                        element: <PracticePage />,
+                        element: (
+                            <PracticePage noteList={practiceSteps["step-2"]} />
+                        ),
                     },
                 ],
             },

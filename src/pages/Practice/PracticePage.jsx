@@ -1,14 +1,19 @@
 import { useEffect, useRef, useState } from "react";
 import MicrophoneMissingModal from "./components/MicrophoneMissingModal";
+import CompletedModal from "./components/CompletedModal";
 import NoteCard from "./components/NoteCard";
 import CompletedNotesCard from "./components/CompletedNotesCard";
 import TimerCard from "./components/TimerCard";
 import Fretboard from "./components/Guitar/Fretboard";
 import useInterval from "../../hooks/useInterval";
 import useNoteDetector from "../../hooks/useNoteDetector";
-import useMicrophonePermission from "../../hooks/useMicrophonePermission";
+import useMicrophoneState from "../../hooks/useMicrophoneState";
+import dingAudio from "../../assets/correct_ding.mp3";
 
 function PracticePage({ noteList }) {
+    const [timerIntervalDelay, setTimerIntervalDelay] = useState(null);
+    const [noteDetectionIntervalDelay, setNoteDetectionIntervalDelay] =
+        useState(null);
     const [timeElapsed, setTimeElapsed] = useState(0);
     const [completedNotesCount, setCompletedNotesCount] = useState(0);
     const [isInCorrectNoteCooldown, setIsInCorrectNoteCooldown] =
@@ -16,22 +21,27 @@ function PracticePage({ noteList }) {
     const [noteToPlay, setNoteToPlay] = useState({});
     const correctNoteAudio = useRef(null);
     const remainingNotes = useRef(noteList);
-    const hasMicrophonePermission = useMicrophonePermission();
-    const noteDetector = useNoteDetector(hasMicrophonePermission);
+    const microphoneState = useMicrophoneState();
+    const noteDetector = useNoteDetector(microphoneState);
 
     useEffect(() => {
-        correctNoteAudio.current = new Audio("../../assets/correct_ding.mp3");
-        selectRandomNoteToPlay();
+        correctNoteAudio.current = new Audio(dingAudio);
+        setNoteToPlay(remainingNotes.current[0]);
     }, []);
 
-    const timerInterval = useInterval(() => {
+    useEffect(() => {
         if (!noteDetector) return;
 
-        setTimeElapsed((s) => s + 1);
-    }, 1000);
+        setTimerIntervalDelay(1000);
+        setNoteDetectionIntervalDelay(100);
+    }, [noteDetector]);
 
-    const noteDetectionInterval = useInterval(() => {
-        if (!noteDetector || isInCorrectNoteCooldown) return;
+    useInterval(() => {
+        setTimeElapsed((s) => s + 1);
+    }, timerIntervalDelay);
+
+    useInterval(() => {
+        if (isInCorrectNoteCooldown) return;
 
         const detectedNote = noteDetector();
 
@@ -40,12 +50,10 @@ function PracticePage({ noteList }) {
         if (detectedNote == noteToPlay.note) {
             onCorrectNotePlayed();
         }
-    }, 100);
+    }, noteDetectionIntervalDelay);
 
     function onCorrectNotePlayed() {
-        remainingNotes.current = remainingNotes.current.filter(
-            (n) => n !== noteToPlay
-        );
+        remainingNotes.current.splice(0, 1);
 
         correctNoteAudio.current.play();
 
@@ -54,34 +62,27 @@ function PracticePage({ noteList }) {
 
         setTimeout(() => {
             if (remainingNotes.current.length == 0) {
-                clearInterval(noteDetectionInterval);
-                clearInterval(timerInterval);
+                setTimerIntervalDelay(null);
+                setNoteDetectionIntervalDelay(null);
             } else {
                 setIsInCorrectNoteCooldown(false);
-                selectRandomNoteToPlay();
+                setNoteToPlay(remainingNotes.current[0]);
             }
         }, 1500);
     }
 
-    function selectRandomNoteToPlay() {
-        const index = Math.floor(Math.random() * remainingNotes.current.length);
-        const note = remainingNotes.current[index];
-
-        setNoteToPlay(note);
-    }
-
-    // Loading permission
-    if (hasMicrophonePermission == null) {
-        return null;
-    }
-
-    // Permission denied
-    if (!hasMicrophonePermission) {
-        return <MicrophoneMissingModal show={!hasMicrophonePermission} />;
-    }
+    // if (microphoneState == null) {
+    //     return <div>Loading</div>;
+    // } else if (microphoneState == "prompt") {
+    //     return <div>TRYKK TILLAT!!</div>;
+    // } else if (microphoneState == "denied") {
+    //     return <MicrophoneMissingModal show={microphoneState == "denied"} />;
+    // }
 
     return (
         <>
+            <CompletedModal isOpen timeElapsed={110} recommendedMaxTime={120} />
+
             <main className="mt-10 max-h-[450px] h-2/3 flex justify-center items-center gap-20">
                 <div className="w-60 h-full flex justify-between items-stretch flex-col">
                     <NoteCard

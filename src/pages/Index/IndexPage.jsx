@@ -15,12 +15,6 @@ function IndexPage() {
                 >
                     <h5>Lav E-streng</h5>
                 </Link>
-                <Link
-                    to={"/practice"}
-                    className="w-24 h-16 flex justify-center items-center border rounded-md shadow-md bg-white"
-                >
-                    <h5>A-streng</h5>
-                </Link>
             </ul>
         </main>
     );
