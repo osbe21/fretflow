@@ -16,17 +16,6 @@ import "./assets/index.css";
 // Step 3:
 //     TBC
 
-const practiceSteps = {
-    "step-1": Array(3)
-        .fill(["A", "B", "C", "D", "E", "F", "G"])
-        .flat()
-        .map((note) => ({
-            note,
-            string: 5,
-        })),
-    "step-2": [{ note: "A", string: 0 }],
-};
-
 const router = createBrowserRouter([
     {
         path: "/",
@@ -44,16 +33,8 @@ const router = createBrowserRouter([
                         element: <PracticeMenuPage />,
                     },
                     {
-                        path: "step-1",
-                        element: (
-                            <PracticePage noteList={practiceSteps["step-1"]} />
-                        ),
-                    },
-                    {
-                        path: "step-2",
-                        element: (
-                            <PracticePage noteList={practiceSteps["step-2"]} />
-                        ),
+                        path: ":practiceStep",
+                        element: <PracticePage />,
                     },
                 ],
             },

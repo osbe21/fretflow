@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
+import practiceStepsArray from "../../utils/practiceStepsArray";
 import MicrophoneMissingModal from "./components/MicrophoneMissingModal";
 import CompletedModal from "./components/CompletedModal";
 import NoteCard from "./components/NoteCard";
@@ -10,7 +12,9 @@ import useNoteDetector from "../../hooks/useNoteDetector";
 import useMicrophoneState from "../../hooks/useMicrophoneState";
 import dingAudio from "../../assets/correct_ding.mp3";
 
-function PracticePage({ noteList }) {
+function PracticePage() {
+    const { practiceStep } = useParams();
+
     const [timerIntervalDelay, setTimerIntervalDelay] = useState(null);
     const [noteDetectionIntervalDelay, setNoteDetectionIntervalDelay] =
         useState(null);
@@ -20,7 +24,7 @@ function PracticePage({ noteList }) {
         useState(false);
     const [noteToPlay, setNoteToPlay] = useState({});
     const correctNoteAudio = useRef(null);
-    const remainingNotes = useRef(noteList);
+    const remainingNotes = useRef(practiceStepsArray[practiceStep]);
     const microphoneState = useMicrophoneState();
     const noteDetector = useNoteDetector(microphoneState);
 
@@ -81,7 +85,12 @@ function PracticePage({ noteList }) {
 
     return (
         <>
-            <CompletedModal isOpen timeElapsed={110} recommendedMaxTime={120} />
+            <CompletedModal
+                isOpen
+                timeElapsed={110}
+                recommendedMaxTime={120}
+                currentPracticeStep={parseInt(practiceStep)}
+            />
 
             <main className="mt-10 max-h-[450px] h-2/3 flex justify-center items-center gap-20">
                 <div className="w-60 h-full flex justify-between items-stretch flex-col">

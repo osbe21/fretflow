@@ -1,19 +1,17 @@
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Modal from "../../../components/Modal";
 import formatTime from "../../../utils/formatTime";
 
-function CompletedModal({ isOpen, timeElapsed, recommendedMaxTime }) {
-    const location = useLocation();
+function CompletedModal({
+    isOpen,
+    timeElapsed,
+    recommendedMaxTime,
+    currentPracticeStep,
+}) {
     const navigate = useNavigate();
 
     function moveToNextStep() {
-        // Huff huff grelt
-        // Fikser senere
-        const nextStep =
-            1 +
-            parseInt(location.pathname.split("/").slice(-1)[0].split("-")[1]);
-
-        navigate(`../step-${nextStep}`);
+        navigate(`../${(currentPracticeStep + 1).toString()}`);
     }
 
     return (
